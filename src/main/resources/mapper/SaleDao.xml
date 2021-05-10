@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bdqn.dao.SaleDao">
+
+    <resultMap type="cn.bdqn.entity.Sale" id="SaleMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="price" column="price" jdbcType="NUMERIC"/>
+        <result property="quantity" column="quantity" jdbcType="INTEGER"/>
+        <result property="totalPrice" column="total_price" jdbcType="NUMERIC"/>
+        <result property="saleDate" column="sale_date" jdbcType="TIMESTAMP"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="productId" column="product_id" jdbcType="INTEGER"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="realName" column="real_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SaleMap">
+        select id,
+               price,
+               quantity,
+               total_price,
+               sale_date,
+               user_id,
+               product_id
+        from invoicingsystem.sale
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="SaleMap">
+        SELECT s.*,
+               p.`product_name`,
+               u.`real_name`
+        FROM    `sale` AS s
+                 INNER JOIN `product` AS p
+                            ON p.`id` = s.`product_id`
+                 INNER JOIN `users` AS u
+                            ON u.`id` = s.`user_id`
+        ORDER BY ${order} DESC
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="queryAllCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM sale
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="SaleMap">
+        select
+        id, price, quantity, total_price, sale_date, user_id, product_id
+        from invoicingsystem.sale
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="price != null">
+                and price = #{price}
+            </if>
+            <if test="quantity != null">
+                and quantity = #{quantity}
+            </if>
+            <if test="totalPrice != null">
+                and total_price = #{totalPrice}
+            </if>
+            <if test="saleDate != null">
+                and sale_date = #{saleDate}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="productId != null">
+                and product_id = #{productId}
+            </if>
+        </where>
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into invoicingsystem.sale(price, quantity, total_price, sale_date, user_id, product_id)
+        values (#{price}, #{quantity}, #{totalPrice}, #{saleDate}, #{userId}, #{productId})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into invoicingsystem.sale(price, quantity, total_price, sale_date, user_id, product_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.price}, #{entity.quantity}, #{entity.totalPrice}, #{entity.saleDate}, #{entity.userId},
+            #{entity.productId})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into invoicingsystem.sale(price, quantity, total_price, sale_date, user_id, product_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.price}, #{entity.quantity}, #{entity.totalPrice}, #{entity.saleDate}, #{entity.userId},
+            #{entity.productId})
+        </foreach>
+        on duplicate key update
+        price = values(price) , quantity = values(quantity) , total_price = values(total_price) , sale_date =
+        values(sale_date) , user_id = values(user_id) , product_id = values(product_id)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update invoicingsystem.sale
+        <set>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="totalPrice != null">
+                total_price = #{totalPrice},
+            </if>
+            <if test="saleDate != null">
+                sale_date = #{saleDate},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from invoicingsystem.sale
+        where id = #{id}
+    </delete>
+
+</mapper>
+

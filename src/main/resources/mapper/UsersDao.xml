@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bdqn.dao.UsersDao">
+
+    <resultMap type="cn.bdqn.entity.Users" id="UsersMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="realName" column="real_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UsersMap">
+        select id,
+               user_name,
+               password,
+               real_name
+        from invoicingsystem.users
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="UsersMap">
+        select id,
+               user_name,
+               password,
+               real_name
+        from invoicingsystem.users limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="UsersMap">
+        select
+        id, user_name, password, real_name
+        from invoicingsystem.users
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="realName != null and realName != ''">
+                and real_name = #{realName}
+            </if>
+        </where>
+    </select>
+
+    <select id="doLong" resultMap="UsersMap">
+        SELECT * FROM `users`
+        WHERE user_name = #{userName}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into invoicingsystem.users(user_name, password, real_name)
+        values (#{userName}, #{password}, #{realName})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into invoicingsystem.users(user_name, password, real_name)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.userName}, #{entity.password}, #{entity.realName})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into invoicingsystem.users(user_name, password, real_name)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.userName}, #{entity.password}, #{entity.realName})
+        </foreach>
+        on duplicate key update
+        user_name = values(user_name) , password = values(password) , real_name = values(real_name)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update invoicingsystem.users
+        <set>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="realName != null and realName != ''">
+                real_name = #{realName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from invoicingsystem.users
+        where id = #{id}
+    </delete>
+
+</mapper>
+
